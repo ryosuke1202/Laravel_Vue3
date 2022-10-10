@@ -10,7 +10,8 @@ class InertiaTestController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Inertia/Index');
+        $blogs = ModelsInertiaTest::all();
+        return Inertia::render('Inertia/Index', ['blogs' => $blogs]);
     }
 
     public function create(Request $request)
@@ -20,8 +21,10 @@ class InertiaTestController extends Controller
 
     public function show($id)
     {
+        $blog = ModelsInertiaTest::findOrfail($id);
         return Inertia::render('Inertia/Show', [
-            'id' => $id
+            'id' => $id,
+            'blog' => $blog,
         ]);
     }
     public function store(Request $request, ModelsInertiaTest $inertiaTest)
@@ -34,6 +37,13 @@ class InertiaTestController extends Controller
 
         $inertiaTest->create($request->all());
 
-        return to_route('inertia.index');
+        return to_route('inertia.index')->with(['message' => '登録しました']);
+    }
+    public function delete(int $id)
+    {
+        $blog = ModelsInertiaTest::findOrfail($id);
+        $blog->delete();
+
+        return to_route('inertia.index')->with('message', '削除しました');
     }
 }
