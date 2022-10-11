@@ -13,7 +13,7 @@ class UpdateItemRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,9 @@ class UpdateItemRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => ['required', 'max:20'],
+            'memo' => ['nullable', 'max:256'],
+            'price' => ['required', 'integer'],
         ];
     }
 }
