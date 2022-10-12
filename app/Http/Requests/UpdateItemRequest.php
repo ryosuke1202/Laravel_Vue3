@@ -27,6 +27,7 @@ class UpdateItemRequest extends FormRequest
             'name' => ['required', 'max:20'],
             'memo' => ['nullable', 'max:256'],
             'price' => ['required', 'integer'],
+            'is_selling' => ['required', 'boolean'],
         ];
     }
 }
