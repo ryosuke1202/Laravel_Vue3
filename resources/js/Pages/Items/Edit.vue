@@ -6,13 +6,23 @@ import { reactive } from 'vue';
 import InputError from '@/Components/InputError.vue';
 
 const editItem = () => {
-    Inertia.put(`/items/${item.id}`, item)
+    Inertia.put(route('items.update', { item: form.id }), form)
 }
 
-defineProps({
-    errors: Object,
+const props = defineProps({ 
     item: Object,
+    errors: Object
 })
+
+const form = reactive({
+    id: props.item.id,
+    name: props.item.name,
+    price: props.item.price,
+    memo: props.item.memo,
+    is_selling: props.item.is_selling
+})
+
+
 </script>
 
 <template>
@@ -39,7 +49,7 @@ defineProps({
                                                 <div class="p-2 w-full">
                                                     <div class="relative">
                                                         <label for="name" class="leading-7 text-sm text-gray-600">商品名</label>
-                                                        <input type="text" v-model="item.name" id="name" name="name" class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                                                        <input type="text" v-model="form.name" id="name" name="name" class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
                                                         <InputError :message="errors.name" />
                                                     </div>
                                                 </div>
@@ -47,7 +57,7 @@ defineProps({
                                                 <div class="p-2 w-full">
                                                     <div class="relative">
                                                         <label for="price" class="leading-7 text-sm text-gray-600">価格</label>
-                                                        <input type="number" v-model="item.price" id="price" name="price" class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                                                        <input type="number" v-model="form.price" id="price" name="price" class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
                                                         <InputError :message="errors.price" />
                                                     </div>
                                                 </div>
@@ -55,12 +65,24 @@ defineProps({
                                                 <div class="p-2 w-full">
                                                     <div class="relative">
                                                         <label for="memo" class="leading-7 text-sm text-gray-600">メモ</label>
-                                                        <textarea v-model="item.memo" id="memo" name="memo" class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 h-32 text-base outline-none text-gray-700 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"></textarea>
+                                                        <textarea v-model="form.memo" id="memo" name="memo" class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 h-32 text-base outline-none text-gray-700 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"></textarea>
                                                         <InputError :message="errors.memo" />
                                                     </div>
                                                 </div>
+
                                                 <div class="p-2 w-full">
-                                                    <button class="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">Button</button>
+                                                    <div class="relative">
+                                                        <label for="is_selling" class="leading-7 text-sm text-gray-600">ステータス</label>
+                                                        <input type="radio" v-model="form.is_selling" id="is_selling" value="1" name="is_selling">
+                                                        <label class="ml-2 mr-4">販売中</label>
+                                                        <input type="radio" v-model="form.is_selling" id="is_selling" value="0" name="is_selling">
+                                                        <label class="ml-2 mr-4">停止中</label>
+                                                        <InputError :message="errors.is_selling" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="p-2 w-full">
+                                                    <button class="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">編集する</button>
                                                 </div>
                                             </div>
                                         </div>
