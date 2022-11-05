@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
+use App\UseCase\Admin\Item\CreateItemUseCase;
+use App\UseCase\Admin\Item\DeleteItemUseCase;
+use App\UseCase\Admin\Item\GetItemListUseCase;
+use App\UseCase\Admin\Item\UpdateItemUseCase;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,19 +21,19 @@ class ItemController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * 商品一覧表示画面
      *
      * @return Response
      */
-    public function index(): Response
+    public function index(GetItemListUseCase $useCase): Response
     {
-        $items = $this->item->select('id', 'name', 'memo', 'price', 'is_selling')->get();
+        $items = $useCase->invoke();
 
         return Inertia::render('Items/Index', ['items' => $items]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * 新規商品登録画面
      *
      * @return Response
      */
@@ -39,14 +43,14 @@ class ItemController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * 新規商品登録処理
      *
      * @param StoreItemRequest $request
      * @return RedirectResponse
      */
-    public function store(StoreItemRequest $request): RedirectResponse
+    public function store(StoreItemRequest $request, CreateItemUseCase $useCase): RedirectResponse
     {
-        $this->item->create($request->all());
+        $useCase->invoke($request);
 
         return to_route('items.index')->with([
             'message' => '登録しました',
@@ -55,7 +59,7 @@ class ItemController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * 商品の詳細表示
      *
      * @param Item $item
      * @return Response
@@ -66,7 +70,7 @@ class ItemController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * 商品編集画面
      *
      * @param Item $item
      * @return \Response
@@ -77,15 +81,15 @@ class ItemController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * 商品更新処理
      *
      * @param  \App\Http\Requests\UpdateItemRequest  $request
      * @param Item $item
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateItemRequest $request, Item $item)
+    public function update(UpdateItemRequest $request, UpdateItemUseCase $useCase)
     {
-        $item->update($request->all());
+        $useCase->invoke($request);
 
         return to_route('items.index')->with([
             'message' => '更新しました',
@@ -94,14 +98,14 @@ class ItemController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * 商品削除処理
      *
-     * @param Item $item
+     * @param int $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Item $item)
+    public function destroy(int $id, DeleteItemUseCase $useCase)
     {
-        $item->delete();
+        $useCase->invoke($id);
 
         return back()->with([
             'message' => '削除しました',
