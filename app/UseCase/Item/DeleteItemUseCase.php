@@ -1,6 +1,6 @@
 <?php
 
-namespace App\UseCase\Admin\Item;
+namespace App\UseCase\Item;
 
 use App\Http\Requests\UpdateItemRequest;
 use App\Repositories\ItemQuery;

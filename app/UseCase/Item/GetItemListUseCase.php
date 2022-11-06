@@ -1,6 +1,6 @@
 <?php
 
-namespace App\UseCase\Admin\Item;
+namespace App\UseCase\Item;
 
 use App\Repositories\ItemQuery;
 use Illuminate\Database\Eloquent\Collection;
