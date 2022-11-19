@@ -5,16 +5,26 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
-use App\UseCase\Item\CreateItemUseCase;
-use App\UseCase\Item\DeleteItemUseCase;
-use App\UseCase\Item\GetItemListUseCase;
-use App\UseCase\Item\UpdateItemUseCase;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ItemController extends Controller
 {
+    /**
+     * item instance.
+     *
+     * @var Item
+     */
+    protected $item;
+
+
+    /**
+     * 初期化
+     *
+     * @param  Item  $item
+     * @return void
+     */
     public function __construct(Item $item)
     {
         $this->item = $item;
@@ -25,9 +35,30 @@ class ItemController extends Controller
      *
      * @return Response
      */
-    public function index(GetItemListUseCase $useCase): Response
+    public function index(): Response
     {
-        $items = $useCase->invoke();
+        // メモ
+        // User::query()
+        //     ->where('pref', 13)
+        //     ->where('age', '>', 15)
+        //     ->get();
+
+        // $items = Item::query()
+        //     ->where([['pref', 13],['age', '>', 15]])
+        //     ->get();
+            
+        // User::toBase();// バッチ処理の時はこっちの方がいいよねという議論があるよう
+        // Item::query()->find(1);
+        // Item::query()->where('name', 'a')->get();
+        // DB::table('items')->where('name', 'a')->get();
+
+        // // スコープ
+        // Item::query()->hoge();
+        // $item = new Item;
+        // $item->find(1);
+        // メモ
+
+        $items = $this->item->all();
 
         return Inertia::render('Items/Index', ['items' => $items]);
     }
@@ -48,9 +79,9 @@ class ItemController extends Controller
      * @param StoreItemRequest $request
      * @return RedirectResponse
      */
-    public function store(StoreItemRequest $request, CreateItemUseCase $useCase): RedirectResponse
+    public function store(StoreItemRequest $request): RedirectResponse
     {
-        $useCase->invoke($request);
+        $this->item->create($request->all());
 
         return to_route('items.index')->with([
             'message' => '登録しました',
@@ -73,7 +104,7 @@ class ItemController extends Controller
      * 商品編集画面
      *
      * @param Item $item
-     * @return \Response
+     * @return Response
      */
     public function edit(Item $item): Response
     {
@@ -83,13 +114,13 @@ class ItemController extends Controller
     /**
      * 商品更新処理
      *
-     * @param  \App\Http\Requests\UpdateItemRequest  $request
-     * @param Item $item
-     * @return \Illuminate\Http\Response
+     * @param UpdateItemRequest  $request
+     * @param Item               $item
+     * @return RedirectResponse
      */
-    public function update(UpdateItemRequest $request, UpdateItemUseCase $useCase)
+    public function update(UpdateItemRequest $request, Item $item): RedirectResponse
     {
-        $useCase->invoke($request);
+        $item->update($request->all());
 
         return to_route('items.index')->with([
             'message' => '更新しました',
@@ -100,12 +131,12 @@ class ItemController extends Controller
     /**
      * 商品削除処理
      *
-     * @param int $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @param Item $item
+     * @return RedirectResponse
      */
-    public function destroy(int $id, DeleteItemUseCase $useCase)
+    public function destroy(Item $item): RedirectResponse
     {
-        $useCase->invoke($id);
+        $item->delete();
 
         return back()->with([
             'message' => '削除しました',

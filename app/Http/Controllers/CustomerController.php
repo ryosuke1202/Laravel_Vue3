@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Customer;
-use App\UseCase\Customer\CreateCustomerUseCase;
-use App\UseCase\Customer\GetCustomerListUseCase;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -15,15 +13,33 @@ use Inertia\Response;
 class CustomerController extends Controller
 {
     /**
+     * customer instance.
+     *
+     * @var Customer
+     */
+    protected $customer;
+
+
+    /**
+     * 初期化
+     *
+     * @param  Item  $item
+     * @return void
+     */
+    public function __construct(Customer $customer)
+    {
+        $this->customer = $customer;
+    }
+
+    /**
      * 顧客一覧表示画面
      *
      * @param Request $request
-     * @param GetCustomerListUseCase $userCase
-     * @return \Inertia\Response
+     * @return Response
      */
-    public function index(Request $request, GetCustomerListUseCase $useCase): Response
+    public function index(Request $request): Response
     {
-        $customers = $useCase->invoke($request);
+        $customers = $this->customer->getCustomerList($request);
 
         return Inertia::render('Customers/Index', [
             'customers' => $customers,
@@ -44,12 +60,11 @@ class CustomerController extends Controller
      *  顧客新規登録処理
      *
      * @param  StoreCustomerRequest $request
-     * @param  CreateCustomerUseCase $request
      * @return RedirectResponse
      */
-    public function store(StoreCustomerRequest $request, CreateCustomerUseCase $useCase): RedirectResponse
+    public function store(StoreCustomerRequest $request): RedirectResponse
     {
-        $useCase->invoke($request);
+        $this->customer->create($request->all());
 
         return to_route('customers.index')->with([
             'message' => '登録しました',
