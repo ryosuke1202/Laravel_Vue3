@@ -13,7 +13,7 @@ class StorePurchaseRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,8 +23,8 @@ class StorePurchaseRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            //
+        return  [
+            'customer_id' => ['required']
         ];
     }
 }

@@ -7,7 +7,8 @@ use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Customer;
 use App\Models\Item;
 use App\Models\Purchase;
-use App\UseCase\Purchase\ShowPurchaseFormUseCase;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -27,18 +28,27 @@ class PurchaseController extends Controller
      */
     protected $customer;
 
+    /**
+     * purchase instance.
+     *
+     * @var Purchase
+     */
+    protected $purchase;
+
 
     /**
      * 初期化
      *
      * @param  Item      $item
      * @param  Customer  $customer
+     * @param  Purchase  $purchase
      * @return void
      */
-    public function __construct(Item $item, Customer $customer)
+    public function __construct(Item $item, Customer $customer, Purchase $purchase)
     {
         $this->item = $item;
         $this->customer = $customer;
+        $this->purchase = $purchase;
     }
     
     /**
@@ -58,27 +68,27 @@ class PurchaseController extends Controller
      */
     public function create(): Response
     {
-        //顧客情報取得
-        $customers = $this->customer->all();
-
         //販売中の商品を取得
         $items = $this->item->getSellingItems();
 
-        return Inertia::render('Purchases/Create', [
-            'customers' => $customers,
-            'items'     => $items
-        ]);
+        return Inertia::render('Purchases/Create', [ 'items' => $items]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * 購入処理（中間テーブルへの登録含む）
      *
-     * @param  \App\Http\Requests\StorePurchaseRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  StorePurchaseRequest  $request
+     * @return RedirectResponse
      */
-    public function store(StorePurchaseRequest $request)
+    public function store(StorePurchaseRequest $request): RedirectResponse
     {
-        //
+        DB::transaction(function () use ($request) {
+            $purchase = $this->purchase->createPurchase($request->all());
+    
+            $this->purchase->attachItemPurchase($request->items, $purchase);
+        });
+
+        return to_route('dashboard');
     }
 
     /**

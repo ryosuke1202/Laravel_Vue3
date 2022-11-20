@@ -35,4 +35,39 @@ class Purchase extends Model
     {
         return $this->belongsToMany(Item::class)->withPivot('quantity');
     }
+
+    /**
+     * 購入処理
+     *
+     * @param array $request
+     * @return Purchase
+     */
+    public function createPurchase(array $request): Purchase
+    {
+        $insertData = [
+            'customer_id' => $request['customer_id'],
+            'status'      => $request['status']
+        ];
+
+        $purchase = Purchase::create($insertData);
+
+        return $purchase;
+    }
+
+    /**
+     * 中間テーブルへの登録
+     *
+     * @param array    $items
+     * @param Purchase $purchase
+     * @return void
+     */
+    public function attachItemPurchase(array $items, Purchase $purchase): void
+    {
+        foreach ($items as $item) {
+            $purchase->items()->attach($purchase->id, [
+                'item_id' => $item['id'],
+                'quantity' => $item['quantity']
+            ]);
+        }
+    }
 }
