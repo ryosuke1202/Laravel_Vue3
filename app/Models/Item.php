@@ -62,4 +62,34 @@ class Item extends Model
             ->sellingItem()
             ->get();
     }
+
+    /**
+     * Undocumented function
+     *
+     * @param Purchase $purchase
+     * @return array
+     */
+    public function aaa(Purchase $purchase): array
+    {
+        $allItems = Item::all();
+
+        $items = [];
+
+        foreach ($allItems as $allItem) {
+            $quantity = 0;
+            foreach ($purchase->items as $item) {
+                if ($allItem->id === $item->id) {
+                    $quantity = $item->pivot->quantity;
+                }
+            }
+            $items[] = [
+                'id' => $allItem->id,
+                'name' => $allItem->name,
+                'price' => $allItem->price,
+                'quantity' => $quantity,
+            ];
+        }
+
+        return $items;
+    }
 }

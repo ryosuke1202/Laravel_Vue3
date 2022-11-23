@@ -70,4 +70,39 @@ class Purchase extends Model
             ]);
         }
     }
+
+    /**
+     * ステータスの更新
+     *
+     * @param Purchase $purchase
+     * @param integer $status
+     * @return void
+     */
+    public function updateStatus(Purchase $purchase, int $status): void
+    {
+        $purchase->status = $status;
+        $purchase->save();
+    }
+
+    /**
+     * 中間テーブルの更新
+     *
+     * @param array $items
+     * @param Purchase $purchase
+     * @return void
+     */
+    public function syncItemPurchase(array $itemArray, Purchase $purchase): void
+    {
+        $items = [];
+
+        foreach ($itemArray as $item) {
+            $items = $items + [
+                $item['id'] => [
+                    'quantity' => $item['quantity']
+                ]
+            ];
+        }
+
+        $purchase->items()->sync($items);
+    }
 }

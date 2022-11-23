@@ -6,6 +6,7 @@ use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Customer;
 use App\Models\Item;
+use App\Models\Order;
 use App\Models\Purchase;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +36,13 @@ class PurchaseController extends Controller
      */
     protected $purchase;
 
+    /**
+     * order instance.
+     *
+     * @var Order
+     */
+    protected $order;
+
 
     /**
      * 初期化
@@ -44,21 +52,29 @@ class PurchaseController extends Controller
      * @param  Purchase  $purchase
      * @return void
      */
-    public function __construct(Item $item, Customer $customer, Purchase $purchase)
+    public function __construct(
+        Item $item,
+        Order $order,
+        Customer $customer,
+        Purchase $purchase
+    )
     {
-        $this->item = $item;
+        $this->item     = $item;
+        $this->order    = $order;
         $this->customer = $customer;
         $this->purchase = $purchase;
     }
     
     /**
-     * Display a listing of the resource.
+     * 購入履歴画面表示
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(Order $order): Response
     {
-        //
+        $orders = $order->getParchseList();
+
+        return Inertia::render('Purchases/Index', ['orders' => $orders]);
     }
 
     /**
@@ -71,7 +87,7 @@ class PurchaseController extends Controller
         //販売中の商品を取得
         $items = $this->item->getSellingItems();
 
-        return Inertia::render('Purchases/Create', [ 'items' => $items]);
+        return Inertia::render('Purchases/Create', ['items' => $items]);
     }
 
     /**
@@ -94,35 +110,59 @@ class PurchaseController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Purchase  $purchase
-     * @return \Illuminate\Http\Response
+     * @param  Purchase  $purchase
+     * @return Response
      */
-    public function show(Purchase $purchase)
+    public function show(Purchase $purchase, Order $order): Response
     {
-        //
+        // 小計
+        $items = $order->where('id', $purchase->id)->get();
+        // 合計
+        $order = $order->getParchseDetail($purchase->id);
+
+        return Inertia::render('Purchases/Show', [
+            'items' => $items,
+            'order' => $order
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * 更新画面表示
      *
-     * @param  \App\Models\Purchase  $purchase
-     * @return \Illuminate\Http\Response
+     * @param Purchase  $purchase
+     * @param Order     $order
+     * @return Response
      */
-    public function edit(Purchase $purchase)
+    public function edit(Purchase $purchase, Order $order): Response
     {
-        //
+        $items = $this->item->aaa($purchase);
+        
+        $order = $this->order->getParchseDetail($purchase->id);
+
+        return Inertia::render('Purchases/Edit', [
+            'items' => $items,
+            'order' => $order
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * 更新処理
      *
-     * @param  \App\Http\Requests\UpdatePurchaseRequest  $request
-     * @param  \App\Models\Purchase  $purchase
-     * @return \Illuminate\Http\Response
+     * @param  UpdatePurchaseRequest  $request
+     * @param  Purchase               $purchase
+     * @return RedirectResponse
      */
-    public function update(UpdatePurchaseRequest $request, Purchase $purchase)
+    public function update(UpdatePurchaseRequest $request, Purchase $purchase): RedirectResponse
     {
-        //
+        DB::transaction(function () use ($purchase, $request) {
+            // ステータスの更新
+            $purchase->updateStatus($purchase, $request->status);
+
+            // 中間テーブルの更新
+            $purchase->syncItemPurchase($request->items, $purchase);
+        });
+
+        return to_route('dashboard');
     }
 
     /**
