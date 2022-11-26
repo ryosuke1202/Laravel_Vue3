@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Builder\OrderBuilder;
 use App\Models\Scopes\Subtotal;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -15,6 +18,27 @@ class Order extends Model
     protected static function booted()
     {
         static::addGlobalScope(new Subtotal);
+    }
+
+    /**
+     * Begin querying the model
+     *
+     * @return OrderBuilder
+     */
+    public static function query(): OrderBuilder
+    {
+        return parent::query();
+    }
+
+    /**
+     * Create a new Eloquent CustomerBuilder for the model.
+     *
+     * @param  Builder  $query
+     * @return OrderBuilder
+     */
+    public function newEloquentBuilder($query): OrderBuilder
+    {
+        return new OrderBuilder($query);
     }
 
     /**
@@ -47,5 +71,55 @@ class Order extends Model
             ->first();
         
         return $order;
+    }
+
+    /**
+     * 期間指定で注文情報を取得
+     *
+     * @param string|null $startDate
+     * @param string|null $endDate
+     * @return LengthAwarePaginator
+     */
+    // public function getParchseBetweenDateTest(?string $startDate, ?string $endDate): LengthAwarePaginator
+    // {
+    //     $period = Order::query()
+    //         ->betweenDate($startDate, $endDate)
+    //         ->selectRaw('id, sum(subtotal) as total, customer_name, status, created_at')
+    //         ->orderBy('created_at')
+    //         ->groupBy('id')
+    //         ->paginate(50);
+
+    //     return $period;
+    // }
+
+    /**
+     * 期間指定で注文情報を取得
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function getParchseBetweenDate(Request $request): array
+    {
+        $subQuery = Order::query()->betweenDate($request->startDate, $request->endDate);
+        $data = null;
+        $labels = null;
+        $totals = null;
+        if ($request->type === 'perDay') {
+            $subQuery->where('status', true)
+                ->groupBy('id')
+                ->selectRaw('SUM(subtotal) as totalPerPurchase, DATE_FORMAT(created_at, "%Y%m%d") as date')
+                ->groupBy('date');
+
+            $data = DB::table($subQuery)
+                ->groupBy('date')
+                ->selectRaw('date, sum(totalPerPurchase) as total')
+                ->get();
+
+            $labels = $data->pluck('date');
+            $totals = $data->pluck('total');
+
+        }
+
+        return [$data, $labels, $totals];
     }
 }
