@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 

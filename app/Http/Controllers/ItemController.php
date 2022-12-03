@@ -12,53 +12,13 @@ use Inertia\Response;
 class ItemController extends Controller
 {
     /**
-     * item instance.
-     *
-     * @var Item
-     */
-    protected $item;
-
-
-    /**
-     * 初期化
-     *
-     * @param  Item  $item
-     * @return void
-     */
-    public function __construct(Item $item)
-    {
-        $this->item = $item;
-    }
-
-    /**
      * 商品一覧表示画面
      *
      * @return Response
      */
     public function index(): Response
     {
-        // メモ
-        // User::query()
-        //     ->where('pref', 13)
-        //     ->where('age', '>', 15)
-        //     ->get();
-
-        // $items = Item::query()
-        //     ->where([['pref', 13],['age', '>', 15]])
-        //     ->get();
-            
-        // User::toBase();// バッチ処理の時はこっちの方がいいよねという議論があるよう
-        // Item::query()->find(1);
-        // Item::query()->where('name', 'a')->get();
-        // DB::table('items')->where('name', 'a')->get();
-
-        // // スコープ
-        // Item::query()->hoge();
-        // $item = new Item;
-        // $item->find(1);
-        // メモ
-
-        $items = $this->item->all();
+        $items = Item::all();
 
         return Inertia::render('Items/Index', ['items' => $items]);
     }
@@ -81,7 +41,7 @@ class ItemController extends Controller
      */
     public function store(StoreItemRequest $request): RedirectResponse
     {
-        $this->item->create($request->all());
+        Item::create($request->all());
 
         return to_route('items.index')->with([
             'message' => '登録しました',

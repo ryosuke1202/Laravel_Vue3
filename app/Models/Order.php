@@ -75,25 +75,6 @@ class Order extends Model
     /**
      * 期間指定で注文情報を取得
      *
-     * @param string|null $startDate
-     * @param string|null $endDate
-     * @return LengthAwarePaginator
-     */
-    // public function getParchseBetweenDateTest(?string $startDate, ?string $endDate): LengthAwarePaginator
-    // {
-    //     $period = Order::query()
-    //         ->betweenDate($startDate, $endDate)
-    //         ->selectRaw('id, sum(subtotal) as total, customer_name, status, created_at')
-    //         ->orderBy('created_at')
-    //         ->groupBy('id')
-    //         ->paginate(50);
-
-    //     return $period;
-    // }
-
-    /**
-     * 期間指定で注文情報を取得
-     *
      * @param OrderBuilder $subQuery
      * @param string       $date 日付形式
      * @return array

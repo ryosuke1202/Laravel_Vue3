@@ -29,7 +29,6 @@ class InertiaTestController extends Controller
     }
     public function store(Request $request, ModelsInertiaTest $inertiaTest)
     {
-        // dd($request->all());
         $validatedData = $request->validate([
             'title' => ['required', 'max:20'],
             'content' => ['required'],

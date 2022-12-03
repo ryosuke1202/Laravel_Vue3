@@ -23,13 +23,6 @@ class PurchaseController extends Controller
     protected $item;
 
     /**
-     * item instance.
-     *
-     * @var Customer
-     */
-    protected $customer;
-
-    /**
      * purchase instance.
      *
      * @var Purchase
@@ -48,20 +41,17 @@ class PurchaseController extends Controller
      * 初期化
      *
      * @param  Item      $item
-     * @param  Customer  $customer
      * @param  Purchase  $purchase
      * @return void
      */
     public function __construct(
         Item $item,
         Order $order,
-        Customer $customer,
         Purchase $purchase
     )
     {
         $this->item     = $item;
         $this->order    = $order;
-        $this->customer = $customer;
         $this->purchase = $purchase;
     }
     
@@ -70,9 +60,9 @@ class PurchaseController extends Controller
      *
      * @return Response
      */
-    public function index(Order $order): Response
+    public function index(): Response
     {
-        $orders = $order->getParchseList();
+        $orders = $this->order->getParchseList();
 
         return Inertia::render('Purchases/Index', ['orders' => $orders]);
     }
@@ -130,10 +120,9 @@ class PurchaseController extends Controller
      * 更新画面表示
      *
      * @param Purchase  $purchase
-     * @param Order     $order
      * @return Response
      */
-    public function edit(Purchase $purchase, Order $order): Response
+    public function edit(Purchase $purchase): Response
     {
         $items = $this->item->aaa($purchase);
         
