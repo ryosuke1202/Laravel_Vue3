@@ -19,7 +19,26 @@ class AnalysisController extends Controller
      */
     public function __invoke(Request $request, Order $order): JsonResponse
     {
-        list($data, $labels, $totals) = $order->getParchseBetweenDate($request);
+        $subQuery = Order::query()->betweenDate($request->startDate, $request->endDate);
+
+        if ($request->type === 'perDay') {
+            $day = '%Y%m%d';
+            list($data, $labels, $totals) = $order->getParchseBetweenDate($subQuery, $day);
+        }
+
+        if ($request->type === 'perMonth') {
+            $month = '%Y%m';
+            list($data, $labels, $totals) = $order->getParchseBetweenDate($subQuery, $month);
+        }
+
+        if ($request->type === 'perYear') {
+            $year = '%Y';
+            list($data, $labels, $totals) = $order->getParchseBetweenDate($subQuery, $year);
+        }
+
+        if ($request->type === 'decile') {
+            list($data, $labels, $totals) = $order->getDecile($subQuery);
+        }
 
         return response()->json([
             'data'   => $data,
