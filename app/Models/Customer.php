@@ -8,7 +8,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Http\Request;
 
 class Customer extends Model
 {
@@ -60,13 +59,14 @@ class Customer extends Model
     /**
      * 顧客一覧表示（検索込み）
      *
-     * @param Request $request
-     * @return LengthAwarePaginator
+     * @param string|null $search
+     * @return CustomerBuilder
      */
-    public function getCustomerList(Request $request): LengthAwarePaginator
+    public function getCustomerList(?string $search): CustomerBuilder
     {
-        return Customer::query()
-            ->searchCustomers($request->search)
-            ->paginate(50);
+        // キーワードのメタ文字をエスケープして商品名を検索
+        $search = '%' . addcslashes($search, '%_\\') . '%';
+
+        return Customer::query()->searchCustomers($search);
     }
 }

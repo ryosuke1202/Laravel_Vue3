@@ -14,8 +14,8 @@ class CustomerBuilder extends Builder
      */
     public function searchCustomers(?string $input): static
     {
-        return $this->where('kana', 'like', '%' . $input . '%' )
-                    ->orWhere('tel', 'like', '%' . $input . '%');
+        return $this->where('kana', 'like', $input)
+                    ->orWhere('tel', 'like', $input);
     }
     
 }
