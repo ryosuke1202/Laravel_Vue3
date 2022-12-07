@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCustomerRequest;
-use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -13,20 +12,12 @@ use Inertia\Response;
 class CustomerController extends Controller
 {
     /**
-     * customer instance.
-     *
-     * @var Customer
-     */
-    protected $customer;
-
-
-    /**
      * 初期化
      *
-     * @param  Item  $item
+     * @param  Customer  $customer
      * @return void
      */
-    public function __construct(Customer $customer)
+    public function __construct(protected Customer $customer)
     {
         $this->customer = $customer;
     }
@@ -39,7 +30,7 @@ class CustomerController extends Controller
      */
     public function index(Request $request): Response
     {
-        $customers = $this->customer->getCustomerList($request);
+        $customers = $this->customer->getCustomerList($request->search)->paginate(50);
 
         return Inertia::render('Customers/Index', [
             'customers' => $customers,
