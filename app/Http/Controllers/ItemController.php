@@ -18,7 +18,7 @@ class ItemController extends Controller
      */
     public function index(): Response
     {
-        $items = Item::all();
+        $items = Item::paginate(10);
 
         return Inertia::render('Items/Index', ['items' => $items]);
     }

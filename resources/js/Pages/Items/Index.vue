@@ -2,10 +2,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/inertia-vue3';
 import FlashMessage from '@/Components/FlashMessage.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { Inertia } from '@inertiajs/inertia';
 
-defineProps({
-    items: Array
+const props = defineProps({
+    items: Object
 })
 
 const deleteItem = (id) => {
@@ -49,7 +50,7 @@ const deleteItem = (id) => {
                                                     <th class="w-10 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100 rounded-tr rounded-br"></th>
                                                 </tr>
                                             </thead>
-                                            <tbody v-for="item in items" :key="item.id">
+                                            <tbody v-for="item in items.data" :key="item.id">
                                                 <tr>
                                                     <td class="px-4 py-3"><Link :href="route('items.show', { item: item.id })" class="text-blue-400">{{ item.id }}</Link></td>
                                                     <td class="px-4 py-3">{{ item.name }}</td>
@@ -68,6 +69,7 @@ const deleteItem = (id) => {
                                         </table>
                                     </div>
                                 </div>
+                                <Pagination class="mt-6 flex justify-center items-center" :links="items.links"></Pagination>
                             </section>
                         </div>
                     </div>
