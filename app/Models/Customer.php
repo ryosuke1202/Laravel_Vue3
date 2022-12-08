@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Builder\CustomerBuilder;
 use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
