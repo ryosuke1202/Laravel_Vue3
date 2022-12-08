@@ -43,14 +43,13 @@ class Order extends Model
     /**
      * 購買履歴一覧取得
      *
-     * @return LengthAwarePaginator
+     * @return OrderBuilder
      */
-    public function getParchseList(): LengthAwarePaginator
+    public function getParchseList(): OrderBuilder
     {
         $order = Order::query()
             ->groupBy('id')
-            ->selectRaw('id, customer_name, sum(subtotal) as total, status, created_at' )
-            ->paginate(50);
+            ->selectRaw('id, customer_name, sum(subtotal) as total, status, created_at' );
         
         return $order;
     }
