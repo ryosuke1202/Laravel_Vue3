@@ -18,6 +18,6 @@ class SearchCustomer extends Controller
      */
     public function __invoke(Request $request, Customer $customer): LengthAwarePaginator
     {
-        return $customer->getCustomerList($request);
+        return $customer->getCustomerList($request->search);
     }
 }
